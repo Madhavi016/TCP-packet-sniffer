@@ -1,24 +1,39 @@
 # tcp_sniffer.py
 # A simple TCP packet sniffer using Scapy
 
-from scapy.all import sniff, IP, TCP
+from scapy.all import sniff, IP, TCP  # Importing necessary layers from Scapy
 
 def process_packet(packet):
     """
     Callback function to process each captured packet.
-    Filters and displays information for TCP packets.
+    It filters for TCP packets and displays source & destination IP and port.
     """
-    if packet.haslayer(IP) and packet.haslayer(TCP):
-        ip_layer = packet[IP]
-        tcp_layer = packet[TCP]
-        print(f"[+] TCP Packet: {ip_layer.src}:{tcp_layer.sport} --> {ip_layer.dst}:{tcp_layer.dport}")
+    if packet.haslayer(IP) and packet.haslayer(TCP):  # Check if both IP and TCP layers exist
+        ip_layer = packet[IP]      # Extract IP layer
+        tcp_layer = packet[TCP]    # Extract TCP layer
+
+        src_ip = ip_layer.src          # Source IP address
+        dst_ip = ip_layer.dst          # Destination IP address
+        src_port = tcp_layer.sport     # Source port
+        dst_port = tcp_layer.dport     # Destination port
+
+        # Print packet summary in the required format
+        print(f"[+] TCP Packet: {src_ip}:{src_port} --> {dst_ip}:{dst_port}")
 
 def main():
     """
-    Main function to start sniffing on the default interface.
+    Main function to start sniffing on the default network interface.
     """
     print("[*] Starting TCP packet sniffer... Press Ctrl+C to stop.\n")
-    sniff(filter="tcp", prn=process_packet, store=False)
 
+    try:
+        # Sniff TCP packets indefinitely, calling process_packet() for each one
+        sniff(filter="tcp", prn=process_packet, store=False)
+    except KeyboardInterrupt:
+        # Handle script termination gracefully
+        print("\n[+] Packet sniffer stopped by user.")
+
+# Run the main function if the script is executed directly
 if __name__ == "__main__":
     main()
+
