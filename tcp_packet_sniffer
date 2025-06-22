@@ -1,0 +1,24 @@
+# tcp_sniffer.py
+# A simple TCP packet sniffer using Scapy
+
+from scapy.all import sniff, IP, TCP
+
+def process_packet(packet):
+    """
+    Callback function to process each captured packet.
+    Filters and displays information for TCP packets.
+    """
+    if packet.haslayer(IP) and packet.haslayer(TCP):
+        ip_layer = packet[IP]
+        tcp_layer = packet[TCP]
+        print(f"[+] TCP Packet: {ip_layer.src}:{tcp_layer.sport} --> {ip_layer.dst}:{tcp_layer.dport}")
+
+def main():
+    """
+    Main function to start sniffing on the default interface.
+    """
+    print("[*] Starting TCP packet sniffer... Press Ctrl+C to stop.\n")
+    sniff(filter="tcp", prn=process_packet, store=False)
+
+if __name__ == "__main__":
+    main()
